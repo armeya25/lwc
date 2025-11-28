@@ -1,4 +1,4 @@
-package com.chart;
+package com.lwc;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
