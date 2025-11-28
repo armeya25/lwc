@@ -5,7 +5,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import javafx.application.Platform;
 import com.chart.service.ChartService;
 import com.chart.service.DataService;
 
@@ -34,18 +33,6 @@ public class ChartApplication extends Application {
     private void initializeServices() {
         DataService dataService = new DataService(DATA_FILE_PATH);
         chartService = new ChartService(webView, dataService);
-        
-        // Add a horizontal line at 1200 after a short delay to ensure chart is loaded
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000); // Wait for chart to initialize
-                Platform.runLater(() -> {
-                    chartService.addHorizontalLine(12000, "rgba(255, 0, 0, 0.7)", "1200 Level");
-                });
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
     }
 
     public static void main(String[] args) {

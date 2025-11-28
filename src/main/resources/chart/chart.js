@@ -43,16 +43,8 @@ class ChartManager {
             }
         };
         
-        // Store reference to the horizontal line
-        this.lastHorizontalLine = null;
-        
         // Make chartManager globally available
         window.chartManager = this;
-        
-        // Expose addHorizontalLine method
-        window.addHorizontalLine = (price, color, text) => {
-            this.addHorizontalLine(price, color, text);
-        };
         
         // Initialize chart
         this.initializeChart();
@@ -170,102 +162,7 @@ class ChartManager {
         });
         
         console.log('Chart initialization complete');
-        
-        // Handle chart resizing
-        new ResizeObserver(entries => {
-            if (entries.length === 0 || !this.horizontalLineSeries) return;
-            const { width, height } = entries[0].contentRect;
-            this.chart.applyOptions({ width, height });
-            
-            // Redraw horizontal line on resize
-            if (this.lastHorizontalLine) {
-                this.addHorizontalLine(
-                    this.lastHorizontalLine.price,
-                    this.lastHorizontalLine.color,
-                    this.lastHorizontalLine.text
-                );
-            }
-        }).observe(chartContainer);
-
-        // Handle time scale changes to keep the line extended
-        this.chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
-            if (this.lastHorizontalLine) {
-                this.addHorizontalLine(
-                    this.lastHorizontalLine.price,
-                    this.lastHorizontalLine.color,
-                    this.lastHorizontalLine.text
-                );
-            }
-        });
     }
-    
-    addHorizontalLine(price, color = 'rgba(255, 0, 0, 0.7)', text = '', lineWidth = 2, lineStyle = 0) {
-    console.log(`Adding horizontal line at: ${price}, width: ${lineWidth}, style: ${lineStyle}`);
-    
-    if (!this.chart) {
-        console.error('Chart not initialized');
-        return false;
-    }
-
-    try {
-        // Store the line properties
-        this.lastHorizontalLine = { price, color, text, lineWidth, lineStyle };
-
-        // Create the line series if it doesn't exist
-        if (!this.horizontalLineSeries) {
-            this.horizontalLineSeries = this.chart.addLineSeries({
-                color: color,
-                lineWidth: lineWidth,
-                lineStyle: lineStyle,  // 0 = solid, 1 = dotted, 2 = dashed
-                crosshairMarkerVisible: false,
-                lastValueVisible: false,
-                priceLineVisible: false,
-            });
-        } else {
-            // Update existing series style
-            this.horizontalLineSeries.applyOptions({
-                color: color,
-                lineWidth: lineWidth,
-                lineStyle: lineStyle
-            });
-            // Clear previous line data
-            this.horizontalLineSeries.setData([]);
-        }
-
-        // Get the visible range
-        const timeScale = this.chart.timeScale();
-        const visibleRange = timeScale.getVisibleLogicalRange() || { from: 0, to: 100 };
-        
-        // Add two points to create a line across the visible range
-        const data = [
-            { time: visibleRange.from, value: price },
-            { time: visibleRange.to, value: price }
-        ];
-        
-        this.horizontalLineSeries.setData(data);
-
-        // Add price label
-        if (text) {
-            this.horizontalLineSeries.createPriceLine({
-                price: price,
-                color: color,
-                lineWidth: lineWidth,
-                lineStyle: lineStyle,
-                axisLabelVisible: true,
-                title: text,
-                lineVisible: true
-            });
-        }
-        
-        // Force a redraw
-        this.chart.timeScale().fitContent();
-        return true;
-    } catch (error) {
-        console.error('Error adding horizontal line:', error);
-        return false;
-    }
-}
-
 }
 
 // Initialize the chart when the page loads
