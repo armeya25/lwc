@@ -90,6 +90,21 @@ public class ChartService {
         }
     }
 
+    public void addHorizontalLine(double price, String color, String text, int lineWidth, int lineStyle) {
+    String script = String.format(
+        "if (window.chartManager && window.chartManager.addHorizontalLine) {" +
+        "   window.chartManager.addHorizontalLine(%f, '%s', '%s', %d, %d);" +
+        "} else {" +
+        "   console.error('chartManager.addHorizontalLine not available');" +
+        "}", price, color, text, lineWidth, lineStyle);
+    executeJavaScript(script);
+}
+
+// Overload with default values for backward compatibility
+public void addHorizontalLine(double price, String color, String text) {
+    addHorizontalLine(price, color, text, 2, 0); // Default: 2px solid line
+}
+
     private void setupConsoleLogging() {
         webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED) {
